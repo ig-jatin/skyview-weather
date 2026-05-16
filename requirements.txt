@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+httpx
+sqlalchemy
+bcrypt==4.1.3
+python-jose[cryptography]
+python-multipart
+apscheduler
