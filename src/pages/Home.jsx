@@ -116,6 +116,13 @@ export default function Home({ user, onLogout }) {
 
         <SearchAutocomplete onSelect={handleSelect} />
 
+        {!weather && !loading && !error && (
+          <div className="main-brand">
+            <h2 className="main-title">SkyView</h2>
+            <p className="main-subtitle">Weather Intelligence</p>
+          </div>
+        )}
+
         {loading && (
           <div className="loading"><div className="spinner" />Loading...</div>
         )}
