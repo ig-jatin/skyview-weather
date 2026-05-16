@@ -97,9 +97,7 @@ export default function Home({ user, onLogout }) {
       <WeatherBackground weatherCode={code} isDay={hour > 6 && hour < 19} />
       <div className="app">
         <header className="app-header">
-          <div className="header-left">
-            <h1>SkyView</h1>
-          </div>
+          <h1>SkyView</h1>
           <div className="header-right">
             {user ? (
               <>
