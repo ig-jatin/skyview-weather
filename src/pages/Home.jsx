@@ -115,7 +115,11 @@ export default function Home({ user, onLogout }) {
 
   return (
     <>
-      <WeatherBackground weatherCode={code} isDay={hour > 6 && hour < 19} />
+      {weather ? (
+        <WeatherBackground weatherCode={code} isDay={hour > 6 && hour < 19} />
+      ) : (
+        <div style={{ position:'fixed', inset:0, background:'#0b091a', zIndex:-2 }} />
+      )}
       <div className="app">
         <header className="app-header">
           <h1>SkyView</h1>
