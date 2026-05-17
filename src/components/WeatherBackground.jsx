@@ -1,33 +1,14 @@
 import { useEffect, useRef } from 'react'
 
-const GRADIENTS = {
-  day: 'linear-gradient(135deg, #0f0c29, #1a1a3e, #12122a)',
-  night: 'linear-gradient(135deg, #0a0817, #0f0c29, #1a1230)',
-  cloudy: 'linear-gradient(135deg, #0f0f1a, #1a1a2e, #121220)',
-  rainy: 'linear-gradient(135deg, #0a0f18, #121a24, #0e141e)',
-  snowy: 'linear-gradient(135deg, #12121a, #1e1e2e, #16162a)',
-  stormy: 'linear-gradient(135deg, #08080f, #0f0f1a, #0a0a14)',
-  foggy: 'linear-gradient(135deg, #12121a, #1a1a24, #14141e)',
-}
+const BG = 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)'
 
-export default function WeatherBackground({ weatherCode, isDay }) {
+export default function WeatherBackground({ weatherCode }) {
   const canvasRef = useRef(null)
   const animRef = useRef(null)
 
-  const isNight = !isDay
   const isRainy = weatherCode >= 51 && weatherCode <= 67
   const isSnowy = weatherCode >= 71 && weatherCode <= 77
   const isStormy = weatherCode >= 95
-  const isFoggy = weatherCode === 45 || weatherCode === 48
-  const isCloudy = weatherCode === 2 || weatherCode === 3
-
-  let gradient
-  if (isStormy) gradient = GRADIENTS.stormy
-  else if (isRainy) gradient = GRADIENTS.rainy
-  else if (isSnowy) gradient = GRADIENTS.snowy
-  else if (isFoggy || isCloudy) gradient = GRADIENTS.cloudy
-  else if (isNight) gradient = GRADIENTS.night
-  else gradient = GRADIENTS.day
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -103,7 +84,7 @@ export default function WeatherBackground({ weatherCode, isDay }) {
         style={{
           position: 'fixed',
           inset: 0,
-          background: gradient,
+          background: BG,
           zIndex: -2,
           transition: 'background 1.5s ease',
         }}

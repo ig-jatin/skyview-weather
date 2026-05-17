@@ -116,9 +116,9 @@ export default function Home({ user, onLogout }) {
   return (
     <>
       {weather ? (
-        <WeatherBackground weatherCode={code} isDay={hour > 6 && hour < 19} />
+        <WeatherBackground weatherCode={code} />
       ) : (
-        <div style={{ position:'fixed', inset:0, background:'#0b091a', zIndex:-2 }} />
+        <div style={{ position:'fixed', inset:0, background:'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', zIndex:-2 }} />
       )}
       <div className="app">
         <header className="app-header">
@@ -143,13 +143,6 @@ export default function Home({ user, onLogout }) {
         {error && <div className="error">{error}</div>}
 
         <SearchAutocomplete onSelect={handleSelect} />
-
-        {!weather && !loading && !error && (
-          <div className="main-brand">
-            <h2 className="main-title">SkyView</h2>
-            <p className="main-subtitle">Weather Intelligence</p>
-          </div>
-        )}
 
         {weather && (
           <div className="dashboard">

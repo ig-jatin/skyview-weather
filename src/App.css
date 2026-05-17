@@ -147,29 +147,6 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 .error { text-align: center; color: #ff6b6b; background: rgba(255,107,107,0.08); padding: 10px; border-radius: 10px; margin-top: 16px; font-size: 0.85rem; }
 
-/* ── Main Brand ── */
-.main-brand {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.main-title {
-  font-size: 3.5rem;
-  font-weight: 800;
-  letter-spacing: -1.5px;
-  background: linear-gradient(135deg, #6c63ff, #48c6ef);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0 0 8px;
-}
-
-.main-subtitle {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.4);
-  margin: 0;
-}
-
 /* ════════════════════════════════════════════
    DASHBOARD GRID LAYOUT
    ════════════════════════════════════════════ */
