@@ -16,14 +16,6 @@ const ICONS = {
   95: '⛈️', 96: '⛈️', 99: '⛈️',
 }
 
-const NAV_ITEMS = [
-  { key: 'today', icon: 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z', label: 'Today' },
-  { key: 'details', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', label: 'Details' },
-  { key: 'week', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', label: 'Week' },
-  { key: 'ai', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z', label: 'AI' },
-  { key: 'map', icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z', label: 'Map' },
-]
-
 function formatHour(time) {
   const d = new Date(time)
   const h = d.getHours()
@@ -41,19 +33,9 @@ function formatDay(date) {
   return d.toLocaleDateString('en', { weekday: 'short' })
 }
 
-function Gauge({ value = 0, max = 100, unit = '', label, color = '#6c63ff', decimals = 0, displayValue }) {
-  const pct = Math.min((value / max) * 100, 100)
-  const shown = displayValue !== undefined ? displayValue : value.toFixed(decimals)
-  return (
-    <div className="gauge-wrapper">
-      <div className="gauge-ring" style={{ background: `conic-gradient(${color} 0% ${pct}%, rgba(255,255,255,0.04) ${pct}% 100%)` }}>
-        <div className="gauge-inner">
-          <span className="gauge-value">{shown}{unit}</span>
-        </div>
-      </div>
-      <span className="gauge-label">{label}</span>
-    </div>
-  )
+function formatDate(dateStr) {
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric' })
 }
 
 export default function Home({ user, onLogout }) {
@@ -63,7 +45,8 @@ export default function Home({ user, onLogout }) {
   const [error, setError] = useState('')
   const [activeNav, setActiveNav] = useState('today')
   const [coords, setCoords] = useState(null)
-  const hourlyRef = useRef(null)
+  const [showSearch, setShowSearch] = useState(false)
+  const searchRef = useRef(null)
 
   useEffect(() => {
     if (user?.home_city) fetchWeather(user.home_city)
@@ -107,254 +90,316 @@ export default function Home({ user, onLogout }) {
     }
   }
 
-  function handleSelect(city, override) { fetchWeather(city, override) }
+  function handleSelect(city, override) { setShowSearch(false); fetchWeather(city, override) }
 
   const code = weather?.code ?? 0
   const hour = new Date().getHours()
   const today = weather?.daily_forecast?.[0]
+  const severity = weather ? assessSeverity(weather) : null
 
   return (
     <>
       {weather ? (
         <WeatherBackground weatherCode={code} />
       ) : (
-        <div style={{ position:'fixed', inset:0, background:'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', zIndex:-2 }} />
+        <div className="app-bg" />
       )}
       <div className="app">
-        <header className="app-header">
-          <h1>SkyView</h1>
-          <div className="header-right">
-            {user ? (
-              <>
-                <span className="header-user">{user.username}</span>
-                <button className="header-btn" onClick={() => navigate('/profile')}>Profile</button>
-                <button className="header-btn" onClick={onLogout}>Logout</button>
-              </>
-            ) : (
-              <>
-                <button className="header-btn" onClick={() => navigate('/login')}>Login</button>
-                <button className="header-btn" onClick={() => navigate('/register')}>Register</button>
-              </>
-            )}
-          </div>
-        </header>
-
         {loading && <div className="loading"><div className="spinner" />Loading...</div>}
         {error && <div className="error">{error}</div>}
 
-        <SearchAutocomplete onSelect={handleSelect} />
-
         {weather && (
           <div className="dashboard">
-            {/* Sidebar */}
-            <nav className="sidebar">
-              {NAV_ITEMS.map(item => (
-                <button
-                  key={item.key}
-                  className={`nav-btn ${activeNav === item.key ? 'active' : ''}`}
-                  onClick={() => setActiveNav(item.key)}
-                  title={item.label}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d={item.icon} />
-                  </svg>
-                  <span className="nav-label">{item.label}</span>
-                </button>
-              ))}
-            </nav>
+            {/* Left Sidebar */}
+            <aside className="dash-sidebar">
+              <div className="sidebar-avatar">
+                {user ? user.username[0].toUpperCase() : '?'}
+              </div>
+              <nav className="sidebar-nav">
+                {[
+                  { key: 'today', path: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+                  { key: 'map', path: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z' },
+                  { key: 'radar', path: 'M12 8V4m0 4a4 4 0 014 4m-4-4a4 4 0 00-4 4m8 0a8 8 0 01-8 8m8-8h4m-12 0H4m16 0a8 8 0 01-8 8m0 0v4' },
+                  { key: 'analytics', path: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+                  { key: 'settings', path: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
+                ].map(item => (
+                  <button
+                    key={item.key}
+                    className={`nav-icon ${activeNav === item.key ? 'active' : ''}`}
+                    onClick={() => setActiveNav(item.key)}
+                    title={item.key}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d={item.path} />
+                    </svg>
+                  </button>
+                ))}
+              </nav>
+              <div className="sidebar-footer">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+                <span className="sidebar-updated">Updated just now</span>
+              </div>
+            </aside>
 
-            {/* Main Content */}
-            <main className="main-content">
-
-              {activeNav === 'today' && (
-                <>
-                  {/* Hero Card */}
-                  <div className="hero-card">
-                    <div className="hero-bg-gradient" />
-                    <div className="hero-top">
-                      <div className="hero-location">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        {weather.city}{weather.country ? `, ${weather.country}` : ''}
-                      </div>
-                      <div className="hero-temp-row">
-                        <span className="hero-temp">{weather.temp}°</span>
-                        <span className="hero-icon-circle">{ICONS[weather.code] || '🌡️'}</span>
-                      </div>
-                      <div className="hero-desc">{weather.description}</div>
-                      <div className="hero-meta">
-                        <span>Feels like {weather.feels_like}°</span>
-                        {today && <span>H: {today.temp_max}° L: {today.temp_min}°</span>}
-                      </div>
-                    </div>
-                    {weather.wind && (
-                      <div className="hero-bottom">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
-                        {weather.wind} km/h
+            {/* Main Area */}
+            <div className="main-area">
+              {/* Top Header */}
+              <header className="top-header">
+                <div className="location-section">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <div>
+                    <div className="location-name">{weather.city}{weather.country ? `, ${weather.country}` : ''}</div>
+                    <div className="location-date">{formatDate(weather.daily_forecast?.[0]?.date) || ''}</div>
+                  </div>
+                </div>
+                <div className="header-actions">
+                  <div className="search-wrapper" ref={searchRef}>
+                    <button className="icon-btn" onClick={() => setShowSearch(!showSearch)}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    </button>
+                    {showSearch && (
+                      <div className="search-popup">
+                        <SearchAutocomplete onSelect={handleSelect} />
                       </div>
                     )}
                   </div>
-
-                  {/* Metrics Gauges */}
-                  <div className="metrics-grid">
-                    <Gauge value={weather.humidity ?? 0} max={100} unit="%" label="Humidity" color="#48c6ef" />
-                    <div className="gauge-wrapper">
-                      <div className="wind-compass">
-                        <div className="compass-ring" />
-                        <div className="compass-arrow">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="#48c6ef"><path d="M12 2l3 7h-2v11h-2V9H9z"/></svg>
-                        </div>
-                        <div className="gauge-inner" style={{ position: 'absolute' }}>
-                          <span className="gauge-value">{weather.wind ?? 0}<span className="gauge-unit">km/h</span></span>
-                        </div>
-                      </div>
-                      <span className="gauge-label">Wind</span>
+                  <button className="download-btn" onClick={() => window.open('https://github.com/ig-jatin/skyview-weather', '_blank')}>Download App</button>
+                  {user ? (
+                    <div className="header-user-menu">
+                      <button className="icon-btn" onClick={onLogout}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                      </button>
+                      <span className="header-user-name">{user.username}</span>
                     </div>
-                    <Gauge value={weather.uv_index ?? 0} max={11} unit="" label="UV Index" color="#ff9800" decimals={1} />
-                    <Gauge value={weather.pressure ? Math.min(Math.max((weather.pressure - 950) / (1050 - 950) * 100, 0), 100) : 0} max={100} unit="hPa" label="Pressure" color="#ab47bc" decimals={0} displayValue={weather.pressure ? Math.round(weather.pressure) : undefined} />
-                  </div>
+                  ) : (
+                    <div className="header-user-menu">
+                      <button className="icon-btn" onClick={() => navigate('/login')}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </header>
 
-                  {/* Hourly Section */}
-                  {weather.hourly_forecast?.length > 0 && (
-                    <div className="card hourly-card">
-                      <div className="card-header">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                        Hourly Forecast
+              {/* Content Grid */}
+              {activeNav === 'today' && (
+                <div className="content-grid">
+                  {/* Left Column */}
+                  <div className="col-left">
+                    {/* Hero Card */}
+                    <div className="glass-card hero-glow">
+                      <div className="hero-storm-bg" />
+                      <div className="hero-content">
+                        <div className="hero-left">
+                          <div className="hero-temp">{weather.temp}°</div>
+                          <div className="hero-conditions">
+                            <span className="hero-cond-main">{weather.description}</span>
+                            <span className="hero-cond-sub">with {weather.feels_like != null && weather.feels_like < weather.temp ? 'cool' : 'warm'} conditions</span>
+                          </div>
+                          <div className="hero-highlow">
+                            {today && <><span className="pill">H {today.temp_max}°</span><span className="pill">L {today.temp_min}°</span></>}
+                          </div>
+                        </div>
+                        <div className="hero-info-box">
+                          <p>Real-time weather data for {weather.city}. Updated every 15 minutes from local stations and satellite imagery.</p>
+                        </div>
                       </div>
-                      <div className="hourly-strip" ref={hourlyRef}>
-                        {weather.hourly_forecast.slice(0, 24).map((h, i) => (
-                          <div key={i} className="hourly-item">
-                            <div className="hourly-time">{i === 0 ? 'Now' : formatHour(h.time)}</div>
-                            <div className="hourly-icon">{ICONS[h.code] || '🌡️'}</div>
-                            <div className="hourly-temp">{h.temp}°</div>
-                            {h.precipitation_prob > 0 && <div className="hourly-rain">{h.precipitation_prob}%</div>}
+                    </div>
+
+                    {/* Hourly Forecast */}
+                    <div className="glass-card">
+                      <div className="card-label">Hourly Forecast</div>
+                      <div className="hourly-strip">
+                        {weather.hourly_forecast?.slice(0, 12).map((h, i) => (
+                          <div key={i} className={`hourly-cell ${i === 0 ? 'now' : ''}`}>
+                            <div className="hc-time">{i === 0 ? 'Now' : formatHour(h.time)}</div>
+                            <div className="hc-icon">{ICONS[h.code] || '🌡️'}</div>
+                            {h.precipitation_prob > 0 && <div className="hc-rain">{h.precipitation_prob}%</div>}
+                            <div className="hc-temp">{h.temp}°</div>
                           </div>
                         ))}
                       </div>
                     </div>
-                  )}
 
-                  {/* Chart */}
-                  <div className="card chart-card">
-                    <WeatherChart dailyForecast={weather.daily_forecast} hourlyHistory={weather.hourly_history} />
-                  </div>
-                </>
-              )}
-
-              {activeNav === 'details' && (
-                <div className="card details-card">
-                  <div className="card-header">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                    Weather Details
-                  </div>
-                  <div className="details-grid">
-                    <div className="detail-item"><span className="di-label">Humidity</span><span className="di-value">{weather.humidity}%</span></div>
-                    <div className="detail-item"><span className="di-label">Wind</span><span className="di-value">{weather.wind} km/h</span></div>
-                    {weather.wind_gusts > 0 && <div className="detail-item"><span className="di-label">Wind Gusts</span><span className="di-value">{weather.wind_gusts} km/h</span></div>}
-                    <div className="detail-item"><span className="di-label">UV Index</span><span className="di-value">{weather.uv_index ?? '—'}</span></div>
-                    <div className="detail-item"><span className="di-label">Pressure</span><span className="di-value">{weather.pressure ? `${Math.round(weather.pressure)} hPa` : '—'}</span></div>
-                    <div className="detail-item"><span className="di-label">Dew Point</span><span className="di-value">{weather.dew_point != null ? `${weather.dew_point}°` : '—'}</span></div>
-                    <div className="detail-item"><span className="di-label">Feels Like</span><span className="di-value">{weather.feels_like}°</span></div>
-                  </div>
-                </div>
-              )}
-
-              {activeNav === 'week' && (
-                <div className="card week-card-full">
-                  <div className="card-header">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    7-Day Forecast
-                  </div>
-                  <div className="week-list">
-                    {weather.daily_forecast?.map((d, i) => (
-                      <div key={i} className="week-item">
-                        <div className="week-day">{formatDay(d.date)}</div>
-                        <div className="week-icon">{ICONS[d.code] || '🌡️'}</div>
-                        <div className="week-bar-wrap">
-                          <span className="week-min">{d.temp_min ?? '—'}°</span>
-                          <div className="week-bar-track"><div className="week-bar-fill" style={{ left: `${((d.temp_min ?? 10) - (-5)) / 50 * 100}%`, right: `${100 - ((d.temp_max ?? 35) - (-5)) / 50 * 100}%` }} /></div>
-                          <span className="week-max">{d.temp_max ?? '—'}°</span>
-                        </div>
-                        <div className="week-extras">
-                          {d.precipitation_prob > 0 && <span className="week-precip">{d.precipitation_prob}%</span>}
-                          {d.uv_index_max != null && <span className="week-uv">UV {d.uv_index_max}</span>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {activeNav === 'ai' && (
-                <>
-                  <div className="card ai-card">
-                    <div className="card-header">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c63ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a4 4 0 0 1 4 4c0 2-2 3-2 5h-4c0-2-2-3-2-5a4 4 0 0 1 4-4z"/><path d="M12 22v-4"/><path d="M9 18h6"/></svg>
-                      AI Weather Summary
-                    </div>
-                    <p className="ai-text">{weather.summary}</p>
-                  </div>
-                  {weather.recommendations && (
-                    <div className="card ai-card">
-                      <div className="card-header">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c63ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                        Recommendations
-                      </div>
-                      <div className="rec-verdict">{weather.recommendations.verdict}</div>
-                      <div className="rec-chips">
-                        {weather.recommendations.activities?.map((a, i) => <span key={i} className="chip">{a}</span>)}
-                      </div>
-                      <div className="rec-chips" style={{ marginTop: 8 }}>
-                        {weather.recommendations.clothing?.map((c, i) => <span key={i} className="chip chip-outline">{c}</span>)}
+                    {/* Weekly Forecast */}
+                    <div className="glass-card">
+                      <div className="card-label">7-Day Forecast</div>
+                      <div className="weekly-strip">
+                        {weather.daily_forecast?.map((d, i) => (
+                          <div key={i} className={`weekly-cell ${i === 0 ? 'active' : ''}`}>
+                            <div className="wc-day">{formatDay(d.date)}</div>
+                            <div className="wc-icon">{ICONS[d.code] || '🌡️'}</div>
+                            <div className="wc-high">{d.temp_max ?? '—'}°</div>
+                            <div className="wc-low">{d.temp_min ?? '—'}°</div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  )}
-                </>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="col-right">
+                    {/* Live Conditions Chart */}
+                    <div className="glass-card">
+                      <div className="live-header">
+                        <span className="card-label">Live Conditions</span>
+                        {severity && <span className="danger-badge">{severity}</span>}
+                      </div>
+                      <WeatherChart dailyForecast={weather.daily_forecast} hourlyHistory={weather.hourly_history} />
+                      <div className="metrics-row">
+                        <div className="metric-cell">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#48c6ef" strokeWidth="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                          <span className="mc-label">Humidity</span>
+                          <span className="mc-value">{weather.humidity}%</span>
+                        </div>
+                        <div className="metric-divider" />
+                        <div className="metric-cell">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#48c6ef" strokeWidth="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+                          <span className="mc-label">Wind</span>
+                          <span className="mc-value">{weather.wind} km/h</span>
+                        </div>
+                        <div className="metric-divider" />
+                        <div className="metric-cell">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#48c6ef" strokeWidth="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h4"/></svg>
+                          <span className="mc-label">Pressure</span>
+                          <span className="mc-value">{weather.pressure ? `${Math.round(weather.pressure)} hPa` : '—'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recently Searched / Saved Locations */}
+                    <div className="glass-card">
+                      <div className="card-label">Recently Searched</div>
+                      {user ? (
+                        <div className="recent-list">
+                          <div className="saved-item" onClick={() => fetchWeather(user.home_city || weather.city)}>
+                            <span className="saved-icon">📍</span>
+                            <div className="saved-info">
+                              <span className="saved-city">{weather.city}</span>
+                              <span className="saved-cond">{weather.description}</span>
+                            </div>
+                            <span className="saved-temp">{weather.temp}°</span>
+                          </div>
+                          <div className="saved-empty">Saved locations appear here</div>
+                        </div>
+                      ) : (
+                        <div className="recent-list">
+                          <div className="saved-item">
+                            <span className="saved-icon">📍</span>
+                            <div className="saved-info">
+                              <span className="saved-city">{weather.city}</span>
+                              <span className="saved-cond">{weather.description}</span>
+                            </div>
+                            <span className="saved-temp">{weather.temp}°</span>
+                          </div>
+                          <div className="saved-empty">
+                            <button className="link-btn" onClick={() => navigate('/login')}>Log in</button> to save locations
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Wind Map */}
+                    <div className="glass-card map-glass-card">
+                      <div className="windmap-header">
+                        <span className="card-label">Wind Map</span>
+                        <div className="windmap-data">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+                          <span>{weather.wind} km/h</span>
+                        </div>
+                      </div>
+                      <WeatherMap city={weather.city} lat={coords?.lat} lon={coords?.lon} />
+                    </div>
+                  </div>
+                </div>
               )}
 
               {activeNav === 'map' && (
-                <div className="card map-card">
-                  <WeatherMap city={weather.city} lat={coords?.lat} lon={coords?.lon} />
+                <div className="content-grid single-col">
+                  <div className="glass-card map-glass-card" style={{ gridColumn: '1 / -1' }}>
+                    <WeatherMap city={weather.city} lat={coords?.lat} lon={coords?.lon} />
+                  </div>
                 </div>
               )}
-            </main>
 
-            {/* Right Panel */}
-            <aside className="right-panel">
-              {/* AQI */}
-              {weather.aqi != null && (
-                <div className="card aqi-card-right">
-                  <div className="card-header-sm">Air Quality</div>
-                  <div className="aqi-gauge-wrap">
-                    <div className="aqi-ring" style={{
-                      background: `conic-gradient(${weather.aqi <= 50 ? '#4caf50' : weather.aqi <= 100 ? '#ffc107' : weather.aqi <= 150 ? '#ff5722' : '#f44336'} 0% ${Math.min(weather.aqi / 3, 100)}%, rgba(255,255,255,0.04) ${Math.min(weather.aqi / 3, 100)}% 100%)`
-                    }}>
-                      <div className="gauge-inner">
-                        <span className="aqi-big">{weather.aqi}</span>
+              {activeNav === 'radar' && (
+                <div className="content-grid single-col">
+                  <div className="glass-card">
+                    <div className="card-label">Weather Radar</div>
+                    <div style={{ padding: 40, textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>
+                      <WeatherMap city={weather.city} lat={coords?.lat} lon={coords?.lon} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeNav === 'analytics' && (
+                <div className="content-grid single-col">
+                  <div className="glass-card">
+                    <div className="card-label">Weather Analytics</div>
+                    <WeatherChart dailyForecast={weather.daily_forecast} hourlyHistory={weather.hourly_history} />
+                    <div className="analytics-grid">
+                      <div className="analytics-item">
+                        <span className="an-label">Average Temp</span>
+                        <span className="an-value">{weather.temp}°C</span>
+                      </div>
+                      <div className="analytics-item">
+                        <span className="an-label">Max UV</span>
+                        <span className="an-value">{today?.uv_index_max ?? '—'}</span>
+                      </div>
+                      <div className="analytics-item">
+                        <span className="an-label">Wind Gusts</span>
+                        <span className="an-value">{weather.wind_gusts ?? '—'} km/h</span>
+                      </div>
+                      <div className="analytics-item">
+                        <span className="an-label">Dew Point</span>
+                        <span className="an-value">{weather.dew_point != null ? `${weather.dew_point}°` : '—'}</span>
                       </div>
                     </div>
-                    <span className={`aqi-label-right ${weather.aqi <= 50 ? 'aqi-good' : weather.aqi <= 100 ? 'aqi-moderate' : weather.aqi <= 150 ? 'aqi-bad' : 'aqi-hazardous'}`}>
-                      {weather.aqi_label}
-                    </span>
                   </div>
-                  <p className="aqi-advice-text">{weather.aqi_advice}</p>
-                  {weather.aqi_pm25 != null && (
-                    <div className="aqi-particles">
-                      <span>PM2.5: {weather.aqi_pm25} µg</span>
-                      <span>PM10: {weather.aqi_pm10} µg</span>
-                    </div>
-                  )}
                 </div>
               )}
 
-              {/* AI Summary */}
-              <div className="card summary-card-right">
-                <div className="card-header-sm">AI Summary</div>
-                <p className="summary-text">{weather.summary}</p>
-              </div>
-            </aside>
+              {activeNav === 'settings' && (
+                <div className="content-grid single-col">
+                  <div className="glass-card">
+                    <div className="card-label">Settings</div>
+                    <div className="settings-list">
+                      <div className="setting-item">
+                        <span>Account</span>
+                        {user ? (
+                          <span className="setting-value">{user.email} <button className="link-btn" onClick={onLogout}>Logout</button></span>
+                        ) : (
+                          <button className="link-btn" onClick={() => navigate('/login')}>Login</button>
+                        )}
+                      </div>
+                      {user && (
+                        <div className="setting-item">
+                          <span>Home Location</span>
+                          <span className="setting-value">{user.home_city || 'Not set'} <button className="link-btn" onClick={() => navigate('/profile')}>Edit</button></span>
+                        </div>
+                      )}
+                      <div className="setting-item">
+                        <span>Version</span>
+                        <span className="setting-value">1.0.0</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
     </>
   )
+}
+
+function assessSeverity(data) {
+  if (data.code >= 95) return 'Storm Warning'
+  if (data.code >= 80) return 'Heavy Rain'
+  if (data.temp && data.temp > 40) return 'Heatwave'
+  if (data.aqi && data.aqi > 200) return 'Hazardous AQI'
+  if (data.wind && data.wind > 50) return 'High Wind'
+  return null
 }
