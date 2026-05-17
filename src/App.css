@@ -692,6 +692,37 @@
   cursor: pointer;
 }
 
+/* ── Suggestion Dropdown ── */
+.suggestions-list {
+  list-style: none; margin: 0; padding: 4px;
+  background: rgba(18, 16, 36, 0.97);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  max-height: 260px;
+  overflow-y: auto;
+  animation: dropIn 0.12s ease;
+}
+@keyframes dropIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+.suggestion-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-radius: 10px; cursor: pointer; transition: background 0.1s;
+  gap: 8px;
+}
+.suggestion-item:hover, .suggestion-item.active { background: rgba(108, 99, 255, 0.12); }
+.suggestion-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.suggestion-main div { display: flex; flex-direction: column; gap: 1px; }
+.suggestion-city { color: #fff; font-size: 0.85rem; font-weight: 500; }
+.suggestion-admin { color: rgba(255,255,255,0.3); font-size: 0.7rem; }
+.suggestion-country { color: rgba(255,255,255,0.25); font-size: 0.7rem; flex-shrink: 0; }
+.suggestions-loading {
+  background: rgba(18, 16, 36, 0.97); border-radius: 14px; padding: 14px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  color: rgba(255,255,255,0.4); font-size: 0.8rem;
+}
+
 /* ════════════════════════════════════════════
    AUTH PAGES (unchanged)
    ════════════════════════════════════════════ */
@@ -811,9 +842,18 @@
 /* ════════════════════════════════════════════
    RESPONSIVE
    ════════════════════════════════════════════ */
+@media (max-width: 1200px) {
+  .app { padding: 0 20px; }
+  .dash-sidebar { width: 52px; padding: 14px 8px; }
+  .nav-icon { width: 36px; height: 36px; border-radius: 12px; }
+  .hero-temp { font-size: 4rem; }
+  .hero-info-box { width: 170px; }
+}
+
 @media (max-width: 1024px) {
   .content-grid { grid-template-columns: 1fr; }
   .hero-info-box { display: none; }
+  .hourly-cell { min-width: 50px; padding: 10px 6px; }
 }
 
 @media (max-width: 768px) {
@@ -830,19 +870,40 @@
   .sidebar-nav { flex-direction: row; gap: 2px; }
   .sidebar-footer { display: none; }
   .top-header { flex-wrap: wrap; gap: 10px; }
+  .header-actions { gap: 6px; }
   .search-popup { width: 280px; right: -60px; }
   .hero-temp { font-size: 3.5rem; letter-spacing: -2px; }
   .hero-content { flex-direction: column; padding: 18px 20px; }
   .hero-info-box { width: 100%; display: block; }
+  .metrics-row { flex-wrap: wrap; gap: 8px; }
+  .metric-divider { display: none; }
+  .weekly-cell { min-width: 54px; }
+  .map-glass-card .leaflet-container { height: 180px; }
 }
 
 @media (max-width: 500px) {
-  .app { padding: 0 12px; }
+  .app { padding: 0 10px; }
+  .dashboard { padding: 10px 0; gap: 14px; }
   .download-btn { display: none; }
-  .dash-sidebar { padding: 8px 12px; border-radius: 16px; }
-  .nav-icon { width: 34px; height: 34px; border-radius: 10px; }
-  .glass-card { padding: 14px; border-radius: 18px; }
-  .hourly-cell { min-width: 48px; padding: 10px 6px; }
-  .weekly-cell { min-width: 50px; padding: 10px 6px; }
-  .location-name { font-size: 0.85rem; }
+  .dash-sidebar { padding: 8px 10px; border-radius: 14px; gap: 0; }
+  .nav-icon { width: 32px; height: 32px; border-radius: 10px; }
+  .glass-card { padding: 12px; border-radius: 16px; }
+  .hourly-cell { min-width: 44px; padding: 8px 4px; gap: 4px; }
+  .weekly-cell { min-width: 46px; padding: 8px 4px; gap: 4px; }
+  .location-name { font-size: 0.8rem; }
+  .location-date { font-size: 0.65rem; }
+  .hero-temp { font-size: 2.8rem; }
+  .hero-content { padding: 14px 16px; gap: 12px; }
+  .hero-cond-main { font-size: 1rem; }
+  .search-popup { width: calc(100vw - 40px); right: -70px; }
+  .search-popup .search-form { flex-direction: column; }
+  .search-popup .search-form button { width: 100%; }
+  .top-header { margin-bottom: 12px; }
+  .icon-btn { width: 34px; height: 34px; }
+  .content-grid { gap: 12px; }
+  .col-left, .col-right { gap: 12px; }
+  .analytics-grid { grid-template-columns: 1fr; }
+  .settings-list { gap: 4px; }
+  .hero-glow { min-height: 160px; }
+  .map-glass-card .leaflet-container { height: 160px; }
 }

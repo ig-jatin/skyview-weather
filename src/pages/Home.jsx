@@ -110,7 +110,7 @@ export default function Home({ user, onLogout }) {
             {/* Left Sidebar */}
             <aside className="dash-sidebar">
               <div className="sidebar-avatar">
-                {user ? user.username[0].toUpperCase() : '?'}
+                {user ? user.username[0].toUpperCase() : '🌤️'}
               </div>
               <nav className="sidebar-nav">
                 {[
@@ -299,7 +299,7 @@ export default function Home({ user, onLogout }) {
                     {/* Wind Map */}
                     <div className="glass-card map-glass-card">
                       <div className="windmap-header">
-                        <span className="card-label">Wind Map</span>
+                        <span className="card-label">SKYVIEW</span>
                         <div className="windmap-data">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
                           <span>{weather.wind} km/h</span>
