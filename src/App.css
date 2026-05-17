@@ -882,28 +882,57 @@
 }
 
 @media (max-width: 500px) {
-  .app { padding: 0 10px; }
-  .dashboard { padding: 10px 0; gap: 14px; }
+  .app { padding: 0 6px; }
+  .dashboard { padding: 8px 0; gap: 10px; }
   .download-btn { display: none; }
-  .dash-sidebar { padding: 8px 10px; border-radius: 14px; gap: 0; }
-  .nav-icon { width: 32px; height: 32px; border-radius: 10px; }
-  .glass-card { padding: 12px; border-radius: 16px; }
-  .hourly-cell { min-width: 44px; padding: 8px 4px; gap: 4px; }
-  .weekly-cell { min-width: 46px; padding: 8px 4px; gap: 4px; }
-  .location-name { font-size: 0.8rem; }
-  .location-date { font-size: 0.65rem; }
-  .hero-temp { font-size: 2.8rem; }
-  .hero-content { padding: 14px 16px; gap: 12px; }
-  .hero-cond-main { font-size: 1rem; }
-  .search-popup { width: calc(100vw - 40px); right: -70px; }
+  .dash-sidebar { padding: 6px 8px; border-radius: 12px; gap: 0; }
+  .nav-icon { width: 30px; height: 30px; border-radius: 8px; }
+  .nav-icon svg { width: 16px; height: 16px; }
+  .glass-card { padding: 10px; border-radius: 14px; }
+  .card-label { margin-bottom: 10px; font-size: 0.65rem; }
+  .hourly-cell { min-width: 40px; padding: 6px 3px; gap: 3px; }
+  .weekly-cell { min-width: 42px; padding: 6px 3px; gap: 3px; }
+  .hc-time { font-size: 0.6rem; }
+  .hc-temp { font-size: 0.75rem; }
+  .wc-day { font-size: 0.65rem; }
+  .wc-high { font-size: 0.75rem; }
+  .wc-low { font-size: 0.65rem; }
+  .location-name { font-size: 0.75rem; }
+  .location-date { font-size: 0.6rem; }
+  .location-section svg { width: 12px; height: 12px; }
+  .hero-temp { font-size: 2.5rem; }
+  .hero-content { padding: 12px 14px; gap: 10px; }
+  .hero-cond-main { font-size: 0.9rem; }
+  .hero-cond-sub { font-size: 0.7rem; }
+  .pill { font-size: 0.65rem; padding: 3px 10px; }
+  .search-popup { width: calc(100vw - 28px); right: -50px; }
   .search-popup .search-form { flex-direction: column; }
   .search-popup .search-form button { width: 100%; }
-  .top-header { margin-bottom: 12px; }
-  .icon-btn { width: 34px; height: 34px; }
-  .content-grid { gap: 12px; }
-  .col-left, .col-right { gap: 12px; }
-  .analytics-grid { grid-template-columns: 1fr; }
+  .top-header { margin-bottom: 8px; gap: 6px; }
+  .header-actions { gap: 4px; }
+  .icon-btn { width: 30px; height: 30px; }
+  .icon-btn svg { width: 14px; height: 14px; }
+  .content-grid { gap: 10px; }
+  .col-left, .col-right { gap: 10px; }
+  .hero-glow { min-height: 140px; border-radius: 14px; }
+  .map-glass-card .leaflet-container { height: 140px; border-radius: 14px; }
+  .analytics-grid { grid-template-columns: 1fr; gap: 6px; }
+  .analytics-item { padding: 8px 12px; }
+  .metrics-row { gap: 4px; padding-top: 10px; }
+  .metric-cell { gap: 2px; }
+  .mc-value { font-size: 0.75rem; }
+  .mc-label { font-size: 0.55rem; }
   .settings-list { gap: 4px; }
-  .hero-glow { min-height: 160px; }
-  .map-glass-card .leaflet-container { height: 160px; }
+  .setting-item { padding: 10px 12px; font-size: 0.75rem; }
+  .recent-list { gap: 2px; }
+  .saved-item { padding: 8px 10px; }
+  .saved-city { font-size: 0.75rem; }
+  .saved-temp { font-size: 0.8rem; }
+  .windmap-header { top: 10px; left: 12px; right: 12px; }
+  .windmap-data { font-size: 0.65rem; }
+  .location-section { gap: 6px; }
+  .hero-highlow { gap: 4px; }
+  .dashboard { gap: 10px; }
+  .auth-card { padding: 28px 20px; border-radius: 18px; }
+  .sidebar-nav { gap: 0; }
 }
