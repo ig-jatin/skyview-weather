@@ -320,24 +320,6 @@ export default function Home({ user, onLogout }) {
 
             {/* Right Panel */}
             <aside className="right-panel">
-              {/* 7-Day Forecast */}
-              <div className="card forecast-card">
-                <div className="card-header-sm">7-Day Forecast</div>
-                <div className="forecast-list">
-                  {weather.daily_forecast?.slice(0, 7).map((d, i) => (
-                    <div key={i} className="forecast-day">
-                      <span className="fd-name">{formatDay(d.date)}</span>
-                      <span className="fd-icon">{ICONS[d.code] || '🌡️'}</span>
-                      <span className="fd-temps">
-                        <span className="fd-high">{d.temp_max ?? '—'}°</span>
-                        <span className="fd-sep">/</span>
-                        <span className="fd-low">{d.temp_min ?? '—'}°</span>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               {/* AQI */}
               {weather.aqi != null && (
                 <div className="card aqi-card-right">

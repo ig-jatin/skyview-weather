@@ -614,38 +614,6 @@
    ════════════════════════════════════════════ */
 .map-card { padding: 0; overflow: hidden; margin-bottom: 0; }
 .map-card .leaflet-container { border-radius: 20px; height: 400px; }
-
-/* ════════════════════════════════════════════
-   RIGHT PANEL - 7-DAY FORECAST
-   ════════════════════════════════════════════ */
-.forecast-card { margin-bottom: 0; }
-
-.forecast-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.forecast-day {
-  display: grid;
-  grid-template-columns: 48px 24px 1fr;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 6px;
-  border-radius: 8px;
-  transition: background 0.15s;
-}
-
-.forecast-day:hover { background: rgba(255, 255, 255, 0.03); }
-
-.fd-name { font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); font-weight: 500; }
-.fd-icon { font-size: 0.9rem; text-align: center; }
-
-.fd-temps { text-align: right; font-size: 0.75rem; }
-.fd-high { color: #fff; font-weight: 500; }
-.fd-sep { color: rgba(255, 255, 255, 0.15); margin: 0 2px; }
-.fd-low { color: rgba(255, 255, 255, 0.35); }
-
 /* ════════════════════════════════════════════
    RIGHT PANEL - AQI
    ════════════════════════════════════════════ */
