@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react'
 
 const GRADIENTS = {
-  day: 'linear-gradient(135deg, #2193b0, #6dd5ed)',
-  night: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
-  cloudy: 'linear-gradient(135deg, #616d86, #8e9eab)',
-  rainy: 'linear-gradient(135deg, #3a4a5c, #5b7a8a)',
-  snowy: 'linear-gradient(135deg, #b8c6db, #e0eaf5)',
-  stormy: 'linear-gradient(135deg, #1a1a2e, #373b69)',
-  foggy: 'linear-gradient(135deg, #8e9eab, #bdc3c7)',
+  day: 'linear-gradient(135deg, #0f0c29, #1a1a3e, #12122a)',
+  night: 'linear-gradient(135deg, #0a0817, #0f0c29, #1a1230)',
+  cloudy: 'linear-gradient(135deg, #0f0f1a, #1a1a2e, #121220)',
+  rainy: 'linear-gradient(135deg, #0a0f18, #121a24, #0e141e)',
+  snowy: 'linear-gradient(135deg, #12121a, #1e1e2e, #16162a)',
+  stormy: 'linear-gradient(135deg, #08080f, #0f0f1a, #0a0a14)',
+  foggy: 'linear-gradient(135deg, #12121a, #1a1a24, #14141e)',
 }
 
 export default function WeatherBackground({ weatherCode, isDay }) {
