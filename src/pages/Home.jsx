@@ -135,15 +135,17 @@ export default function Home({ user, onLogout }) {
           </div>
         </header>
 
+        {loading && <div className="loading"><div className="spinner" />Loading...</div>}
+        {error && <div className="error">{error}</div>}
+
+        <SearchAutocomplete onSelect={handleSelect} />
+
         {!weather && !loading && !error && (
           <div className="main-brand">
             <h2 className="main-title">SkyView</h2>
             <p className="main-subtitle">Weather Intelligence</p>
           </div>
         )}
-
-        {loading && <div className="loading"><div className="spinner" />Loading...</div>}
-        {error && <div className="error">{error}</div>}
 
         {weather && (
           <div className="dashboard">
@@ -166,7 +168,6 @@ export default function Home({ user, onLogout }) {
 
             {/* Main Content */}
             <main className="main-content">
-              <SearchAutocomplete onSelect={handleSelect} />
 
               {activeNav === 'today' && (
                 <>
@@ -326,7 +327,7 @@ export default function Home({ user, onLogout }) {
               <div className="card forecast-card">
                 <div className="card-header-sm">7-Day Forecast</div>
                 <div className="forecast-list">
-                  {weather.daily_forecast?.slice(0, 5).map((d, i) => (
+                  {weather.daily_forecast?.slice(0, 7).map((d, i) => (
                     <div key={i} className="forecast-day">
                       <span className="fd-name">{formatDay(d.date)}</span>
                       <span className="fd-icon">{ICONS[d.code] || '🌡️'}</span>
