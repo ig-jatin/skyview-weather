@@ -55,10 +55,7 @@ export default function Home({ user, onLogout }) {
         (pos) => {
           const { latitude, longitude } = pos.coords
           setCoords({ lat: latitude, lon: longitude })
-          fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${latitude}&longitude=${longitude}&language=en&format=json`)
-            .then(r => r.json())
-            .then(d => { if (d.results?.[0]) fetchWeather(d.results[0].name, { lat: latitude, lon: longitude }) })
-            .catch(() => {})
+          fetchWeather('', { lat: latitude, lon: longitude })
         },
         () => fetchWeather('New Delhi')
       )

@@ -290,17 +290,19 @@ scheduler.add_job(check_alerts, "interval", hours=3, id="weather_alerts")
 
 
 @app.get("/api/weather")
-async def get_weather(city: str, lat: float = None, lon: float = None):
-    if lat is not None and lon is not None:
-        loc = {"name": city, "country": "", "latitude": lat, "longitude": lon}
-        async with httpx.AsyncClient(timeout=15) as client:
-            geo_res = await client.get("https://geocoding-api.open-meteo.com/v1/search", params={"name": city, "count": 1, "language": "en", "format": "json"})
+async def get_weather(city: str = "", lat: float = None, lon: float = None):
+    async with httpx.AsyncClient(timeout=15) as client:
+        if lat is not None and lon is not None:
+            geo_res = await client.get("https://geocoding-api.open-meteo.com/v1/reverse", params={"latitude": lat, "longitude": lon, "language": "en", "format": "json"})
             if geo_res.status_code == 200:
                 geo = geo_res.json()
                 if geo.get("results"):
-                    loc["country"] = geo["results"][0].get("country", "")
-    else:
-        async with httpx.AsyncClient(timeout=15) as client:
+                    loc = geo["results"][0]
+                else:
+                    loc = {"name": city or "Unknown", "country": "", "latitude": lat, "longitude": lon}
+            else:
+                loc = {"name": city or "Unknown", "country": "", "latitude": lat, "longitude": lon}
+        else:
             geo_res = await client.get("https://geocoding-api.open-meteo.com/v1/search", params={"name": city, "count": 1, "language": "en", "format": "json"})
             if geo_res.status_code != 200:
                 raise HTTPException(502, "Geocoding unavailable")
